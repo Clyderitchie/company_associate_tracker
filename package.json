@@ -1,0 +1,18 @@
+{
+  "dependencies": {
+    "inquirer": "^8.2.4",
+    "mysql": "^2.18.1",
+    "mysql2": "^3.6.3",
+    "node": "^21.1.0"
+  },
+  "scripts": {
+    "start": "node server.js"
+  },
+  "name": "company_associate_tracker",
+  "description": "## Deployed link",
+  "version": "1.0.0",
+  "main": "index.js",
+  "keywords": [],
+  "author": "",
+  "license": "ISC"
+}
