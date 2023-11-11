@@ -6,8 +6,8 @@
     "node": "^21.1.0"
   },
   "scripts": {
-    "start": "node server",
-    "dev": "nodemon server"
+    "start": "node index",
+    "dev": "nodemon index"
   },
   "name": "company_associate_tracker",
   "description": "## Deployed link",
