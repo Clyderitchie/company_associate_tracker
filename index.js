@@ -1,4 +1,4 @@
-const inquirer = require('inquirer');
+const { prompt } = require('inquirer');
 const db = require('./db/connection');
 require('console.table');
 const utils = require('util');
@@ -13,8 +13,8 @@ function init() {
 }
 startApp();
 function startApp() {
-    inquirer
-        .prompt([
+    // inquirer
+        prompt([
             {
                 type: 'list',
                 name: 'choice',
@@ -46,7 +46,7 @@ function startApp() {
                     addDepartment();
                     break;
                 case "Add a role":
-                    addRoleAA();
+                    addRole();
                     break;
                 case "Add an employee":
                     addEmployee();
@@ -62,7 +62,6 @@ function startApp() {
 
 // functions
 // function addDepatment(){};
-// function addRoleAA(){};
 // function addEmployee(){};
 // function updateEmployee(){};
 
@@ -108,5 +107,39 @@ function viewEmployees() {
         }
         console.table(dbRes);
         startApp();
+    });
+};
+
+function addRole() {
+    db.query("select id as value, department_name as name from department", (err, department) => {
+        if (err) console.log(err);
+        prompt([
+            {
+                type: "input",
+                name: "role_title",
+                message: "Enter the title of the new role.",
+            },
+            {
+                type: "input",
+                name: "role_salary",
+                message: "Enter the salary of the new role.",
+            },
+            {
+                type: "list",
+                name: "dept_id",
+                message: "Which department does this role belong to?",
+                choices: department,
+            },
+        ]).then(({ role_title, role_salary, dept_id }) => {
+            db.query(
+                "insert into roles (title, salary, department_id) values (?,?,?) ",
+                [role_title, role_salary, dept_id],
+                (err) => {
+                    if (err) console.log(err);
+                    console.log("The new role was successfully added.");
+                    startApp();
+                }
+            );
+        });
     });
 };
