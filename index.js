@@ -1,6 +1,6 @@
 const inquirer = require('inquirer');
 const db = require('./db/connection');
-// require('console.table');
+require('console.table');
 const utils = require('util');
 db.query = utils.promisify(db.query);
 // const logo = require('asciiart-logo');
@@ -66,37 +66,46 @@ function startApp() {
 // function addEmployee(){};
 // function updateEmployee(){};
 
-function viewDepts(){
-    const sql = 'SELECT * FROM department';
-    db.query(sql, (err, dbRes)=>{
+function viewDepts() {
+    const sql = 'SELECT department.id, department_name AS "department name" FROM department';
+    db.query(sql, (err, dbRes) => {
         if (err) {
             console.log(err)
             return;
-        } 
+        }
         console.table(dbRes);
         startApp();
     });
 };
 
-function viewRoles(){
-    const sql = 'SELECT * FROM roles';
-    db.query(sql, (err, dbRes)=>{
+function viewRoles() {
+    const sql = 'SELECT roles.id, roles.title, roles.salary, department.department_name AS "department" FROM roles JOIN department ON roles.department_id = department.id';
+    db.query(sql, (err, dbRes) => {
         if (err) {
             console.log(err)
             return;
-        } 
+        }
         console.table(dbRes);
         startApp();
     });
 };
 
-function viewEmployees(){
-    const sql = 'SELECT * FROM employee';
-    db.query(sql, (err, dbRes)=>{
+function viewEmployees() {
+    const sql = `SELECT employee.id, employee.first_name AS "first name", employee.last_name 
+    AS "last name", roles.title, department.department_name AS department, roles.salary, 
+    concat(manager.first_name, " ", manager.last_name) AS manager
+    FROM employee
+    LEFT JOIN roles
+    ON employee.role_id = roles.id
+    LEFT JOIN department
+    ON roles.department_id = department.id
+    LEFT JOIN employee manager
+    ON manager.id = employee.manager_id`;
+    db.query(sql, (err, dbRes) => {
         if (err) {
             console.log(err)
             return;
-        } 
+        }
         console.table(dbRes);
         startApp();
     });
