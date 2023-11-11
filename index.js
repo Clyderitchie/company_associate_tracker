@@ -61,8 +61,6 @@ function startApp() {
 };
 
 // functions
-// function addDepatment(){};
-// function addEmployee(){};
 // function updateEmployee(){};
 
 function viewDepts() {
@@ -142,4 +140,68 @@ function addRole() {
             );
         });
     });
+};
+
+function addDepartment(){
+    db.query('SELECT department_name as department FROM department', (err, dbRes) => {
+        if (err) console.log(err);
+        prompt([
+            {
+                type: "input",
+                name: "department_title",
+                message: "What is the name of the department?"
+            }
+        ]).then(({ department_title }) => {
+            db.query(
+                "INSERT INTO department (department_name) VALUES (?)",
+                [department_title],
+                (err) => {
+                    if (err) console.log(err);
+                    console.log('Department was successfully added.');
+                    startApp();
+                }
+            );
+        });
+    }); 
+};
+
+function addEmployee(){
+    db.query("SELECT first_name as first, last_name as last FROM employee", (err, employee) => {
+        if (err) console.log(err);
+        prompt([
+            {
+                type: 'input',
+                name: 'first_name',
+                message: 'What is employee\'s first name?'
+            },
+            {
+                type: 'input',
+                name: 'last_name',
+                message: 'What is the employees last name?'
+            },
+            // {
+            //     type: 'list',
+            //     name: 'employee_role',
+            //     message: 'What is the employees role?',
+            //     choices: roles
+            // },
+            {
+                type: 'list',
+                name: 'employee_manager',
+                message: 'Who is the employees manager?',
+                choices: employee
+            }
+
+        ]).then(({ first_name, last_name, employee_role, employee_manager }) => {
+            db.query(
+                'INSERT INTO employee (first_name, last_name, role_id, manager_id) VALUES (?, ?, ?, ?)',
+                [ first_name, last_name, employee_role, employee_manager ],
+                (err) => {
+                    if (err) console.log(err);
+                    console.log('Employee was successfully added.');
+                    startApp();
+                }
+            )
+        })
+    })
 };
