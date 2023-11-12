@@ -1,0 +1,1 @@
+-- SELECT employee.first_name, employee.last_name, manager.id AS manager,roles.id AS role FROM employee LEFT JOIN employee AS manager ON employee.manager_id = manager.id LEFT JOIN roles ON employee.role_id = roles.id;
