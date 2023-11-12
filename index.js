@@ -60,9 +60,6 @@ function startApp() {
         }));
 };
 
-// functions
-// function updateEmployee(){};
-
 function viewDepts() {
     const sql = 'SELECT department.id, department_name AS "department name" FROM department';
     db.query(sql, (err, dbRes) => {
@@ -165,47 +162,6 @@ function addDepartment() {
     });
 };
 
-// function addEmployee() {
-//     db.query("SELECT employee.first_name, employee.last_name, manager.id AS manager,roles.id AS role FROM employee LEFT JOIN employee AS manager ON employee.manager_id = manager.id LEFT JOIN roles ON employee.role_id = roles.id;", (err, employees) => {
-//         if (err) console.log(err);
-//         prompt([
-//             {
-//                 type: 'input',
-//                 name: 'first_name',
-//                 message: 'What is employee\'s first name?'
-//             },
-//             {
-//                 type: 'input',
-//                 name: 'last_name',
-//                 message: 'What is the employees last name?'
-//             },
-//             {
-//                 type: 'list',
-//                 name: 'employee_role',
-//                 message: 'What is the employees role?',
-//                 choices: employees.map(employee => ({ name: `${employee.first_name} ${employee.last_name}`, value: employee.id })),
-//             },
-//             {
-//                 type: 'list',
-//                 name: 'employee_manager',
-//                 message: 'Who is the employees manager?',
-//                 choices: employees.map(employee => ({ name: `${employee.first_name} ${employee.last_name}`, value: employee.id })),
-//             }
-
-//         ]).then(({ first_name, last_name, employee_role, employee_manager }) => {
-//             db.query(
-//                 'INSERT INTO employee (first_name, last_name, role_id, manager_id) VALUES (?, ?, ?, ?)',
-//                 [first_name, last_name, employee_role, employee_manager],
-//                 (err) => {
-//                     if (err) console.log(err);
-//                     console.log('Employee was successfully added.');
-//                     startApp();
-//                 }
-//             )
-//         })
-//     })
-// };
-
 function addEmployee() {
     db.query("SELECT employee.id, employee.first_name, employee.last_name, roles.title FROM employee LEFT JOIN roles ON employee.role_id = roles.id", (err, employees) => {
         if (err) console.log(err);
@@ -245,3 +201,36 @@ function addEmployee() {
         });
     });
 }
+
+function updateEmployee() {
+    db.query('SELECT first_name AS name, last_name FROM employee;', (err, dbRes) => {
+      if (err) console.log(err);
+      db.query('SELECT id, title FROM roles;', (err, roleRes) => {
+        if (err) console.log(err);
+        prompt([
+          {
+            type: 'list',
+            name: 'employee_list',
+            message: "Which employee's role would you like to update?",
+            choices: dbRes.map(employee => ({ name: employee.name, value: employee.id })),
+          },
+          {
+            type: 'list',
+            name: 'new_role',
+            message: 'Which role would you like to assign to the employee?',
+            choices: roleRes.map(role => ({ name: role.title, value: role.id })),
+          },
+        ]).then(({ employee_list, new_role }) => {
+          db.query(
+            'UPDATE employee SET role_id = ? WHERE id = ?',
+            [new_role, employee_list],
+            (err) => {
+              if (err) console.log(err);
+              console.log("Employee's role was successfully updated");
+              startApp();
+            }
+          );
+        });
+      });
+    });
+  }
