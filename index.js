@@ -162,7 +162,6 @@ function addDepartment() {
 function addEmployee() {
     db.query("SELECT employee.id, employee.first_name, employee.last_name, roles.title FROM employee LEFT JOIN roles ON employee.role_id = roles.id", (err, employees) => {
         if (err) console.log(err);
-        console.log(employees);
         let choices = employees.map(employee => ({ name: `${employee.first_name} ${employee.last_name}`, value: employee.id }));
         choices = [{ name: 'no manager', value: null }, ...choices]
         db.query('SELECT id, title FROM roles;', (err, roleRes) => {
