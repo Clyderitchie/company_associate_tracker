@@ -3,14 +3,15 @@ const db = require('./db/connection');
 require('console.table');
 const utils = require('util');
 db.query = utils.promisify(db.query);
-// const logo = require('asciiart-logo');
+const logo = require('asciiart-logo');
 
 
 function init() {
-    // const logoText = logo({ name: 'Employee Database Management' }).render();
-    // console.log(logoText);
+    const logoText = logo({ name: 'Employee Database Management' }).render();
+    console.log(logoText);
     startApp();
 }
+init();
 startApp();
 function startApp() {
     // inquirer
