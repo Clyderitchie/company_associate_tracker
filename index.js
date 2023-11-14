@@ -1,18 +1,14 @@
 const { prompt } = require('inquirer');
 const db = require('./db/connection');
 require('console.table');
-const utils = require('util');
-db.query = utils.promisify(db.query);
 const logo = require('asciiart-logo');
-
 
 function init() {
     const logoText = logo({ name: 'Employee Database Management' }).render();
     console.log(logoText);
     startApp();
 }
-init();
-startApp();
+
 function startApp() {
     // inquirer
     prompt([
@@ -166,72 +162,80 @@ function addDepartment() {
 function addEmployee() {
     db.query("SELECT employee.id, employee.first_name, employee.last_name, roles.title FROM employee LEFT JOIN roles ON employee.role_id = roles.id", (err, employees) => {
         if (err) console.log(err);
-        prompt([
-            {
-                type: 'input',
-                name: 'first_name',
-                message: "What is the employee's first name?"
-            },
-            {
-                type: 'input',
-                name: 'last_name',
-                message: "What is the employee's last name?"
-            },
-            {
-                type: 'list',
-                name: 'employee_role',
-                message: "What is the employee's role?",
-                choices: employees.map(employee => ({ name: employee.title, value: employee.id })),
-            },
-            {
-                type: 'list',
-                name: 'employee_manager',
-                message: "Who is the employee's manager?",
-                choices: employees.map(employee => ({ name: `${employee.first_name} ${employee.last_name}`, value: employee.id })),
-            }
-        ]).then(({ first_name, last_name, employee_role, employee_manager }) => {
-            db.query(
-                'INSERT INTO employee (first_name, last_name, role_id, manager_id) VALUES (?, ?, ?, ?)',
-                [first_name, last_name, employee_role, employee_manager],
-                (err) => {
-                    if (err) console.log(err);
-                    console.log('Employee was successfully added.');
-                    startApp();
+        console.log(employees);
+        let choices = employees.map(employee => ({ name: `${employee.first_name} ${employee.last_name}`, value: employee.id }));
+        choices = [{ name: 'no manager', value: null }, ...choices]
+        db.query('SELECT id, title FROM roles;', (err, roleRes) => {
+            prompt([
+                {
+                    type: 'input',
+                    name: 'first_name',
+                    message: "What is the employee's first name?"
+                },
+                {
+                    type: 'input',
+                    name: 'last_name',
+                    message: "What is the employee's last name?"
+                },
+                {
+                    type: 'list',
+                    name: 'employee_role',
+                    message: "What is the employee's role?",
+                    choices: roleRes.map(role => ({ name: role.title, value: role.id })),
+                },
+                {
+                    type: 'list',
+                    name: 'employee_manager',
+                    message: "Who is the employee's manager?",
+                    choices: choices,
                 }
-            );
-        });
+            ]).then(({ first_name, last_name, employee_role, employee_manager }) => {
+                db.query(
+                    'INSERT INTO employee (first_name, last_name, role_id, manager_id) VALUES (?, ?, ?, ?)',
+                    [first_name, last_name, employee_role, employee_manager],
+                    (err) => {
+                        if (err) console.log(err);
+                        console.log('Employee was successfully added.');
+                        startApp();
+                    }
+                );
+            });
+        })
+        
     });
 }
 
 function updateEmployee() {
     db.query('SELECT first_name AS name, last_name, id FROM employee;', (err, dbRes) => {
-      if (err) console.log(err);
-      db.query('SELECT id, title FROM roles;', (err, roleRes) => {
         if (err) console.log(err);
-        prompt([
-          {
-            type: 'list',
-            name: 'employee_list',
-            message: "Which employee's role would you like to update?",
-            choices: dbRes.map(employee => ({ name: employee.name, value: employee.id })),
-          },
-          {
-            type: 'list',
-            name: 'new_role',
-            message: 'Which role would you like to assign to the employee?',
-            choices: roleRes.map(role => ({ name: role.title, value: role.id })),
-          },
-        ]).then(({ employee_list, new_role }) => {
-          db.query(
-            'UPDATE employee SET role_id = ? WHERE id = ?',
-            [new_role, employee_list],
-            (err) => {
-              if (err) console.log(err);
-              console.log("Employee's role was successfully updated");
-              startApp();
-            }
-          );
+        db.query('SELECT id, title FROM roles;', (err, roleRes) => {
+            if (err) console.log(err);
+            prompt([
+                {
+                    type: 'list',
+                    name: 'employee_list',
+                    message: "Which employee's role would you like to update?",
+                    choices: dbRes.map(employee => ({ name: employee.name, value: employee.id })),
+                },
+                {
+                    type: 'list',
+                    name: 'new_role',
+                    message: 'Which role would you like to assign to the employee?',
+                    choices: roleRes.map(role => ({ name: role.title, value: role.id })),
+                },
+            ]).then(({ employee_list, new_role }) => {
+                db.query(
+                    'UPDATE employee SET role_id = ? WHERE id = ?',
+                    [new_role, employee_list],
+                    (err) => {
+                        if (err) console.log(err);
+                        console.log("Employee's role was successfully updated");
+                        startApp();
+                    }
+                );
+            });
         });
-      });
     });
-  }
+}
+
+init();
