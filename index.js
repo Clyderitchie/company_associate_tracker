@@ -203,7 +203,7 @@ function addEmployee() {
 }
 
 function updateEmployee() {
-    db.query('SELECT first_name AS name, last_name FROM employee;', (err, dbRes) => {
+    db.query('SELECT first_name AS name, last_name, id FROM employee;', (err, dbRes) => {
       if (err) console.log(err);
       db.query('SELECT id, title FROM roles;', (err, roleRes) => {
         if (err) console.log(err);
